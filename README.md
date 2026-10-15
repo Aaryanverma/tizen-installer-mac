@@ -160,5 +160,6 @@ SDB_BIN="/path/to/trusted/sdb" python3 installer.py
 - [VNNGYN's XDA preservation post](https://xdaforums.com/t/root-required-how-to-extract-gear-s3-watch-faces-and-apps-from-the-galaxy-store.4687851/post-89812195): archived Facer iOS companion.
 - Little Labs / Facer: the Facer apps and companion.
 - Samsung and the Tizen project: the watch platform and official SDB tool.
+- A Big thanks to OpenAI Codex.
 
 Repository source is provided under the [MIT license](LICENSE), retaining the upstream notice. SDB is downloaded from Tizen and remains subject to its own terms; it is not bundled in this repository. Facer and other watch packages retain their respective owners' rights. This project is independent of Samsung, Tizen, and Facer.
