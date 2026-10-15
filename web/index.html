@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="referrer" content="no-referrer">
+  <title>Tizen Installer · Mac</title>
+  <style>
+    :root { --ink:#173c39; --muted:#637875; --brand:#147663; --brand-dark:#0d594a; --line:#dce6e2; --paper:#fff; --wash:#f3f6f2; --warn:#7c5614; --error:#a73535; --radius:20px; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--wash); color:var(--ink); font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-font-smoothing:antialiased; }
+    button,input,select { font:inherit; }
+    button,input,select,label[for="package-file"] { touch-action:manipulation; }
+    button,.file-button { min-height:46px; padding:11px 18px; border:1px solid transparent; border-radius:11px; background:var(--brand); color:white; font-weight:650; cursor:pointer; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px; }
+    button:hover:not(:disabled),.file-button:hover { background:var(--brand-dark); }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    button.secondary { background:white; color:var(--ink); border-color:var(--line); }
+    button.secondary:hover:not(:disabled) { background:#f1f5f2; }
+    button.small { min-height:36px; padding:7px 12px; font-size:13px; }
+    button:focus-visible,input:focus-visible,select:focus-visible,.file-button:focus-within,summary:focus-visible { outline:3px solid #83c6b4; outline-offset:3px; }
+    input,select { width:100%; min-height:47px; border:1px solid #c7d6cf; border-radius:10px; padding:10px 12px; background:white; color:var(--ink); font-size:16px; }
+    input:disabled,select:disabled { background:#f3f5f3; color:#788b86; }
+    label { display:block; font-size:13px; font-weight:650; margin-bottom:7px; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:clamp(30px,5vw,43px); line-height:1.15; letter-spacing:-1.5px; margin-bottom:14px; font-weight:720; max-width:660px; }
+    h2 { font-size:19px; letter-spacing:-.4px; margin-bottom:4px; }
+    h3 { font-size:15px; margin-bottom:10px; }
+    p { margin-bottom:12px; }
+    .muted { color:var(--muted); }
+    .small-text { font-size:13px; }
+    .mono { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+    .hidden,[hidden] { display:none!important; }
+    .shell { max-width:1050px; padding:0 30px; margin:0 auto; }
+    .topbar { display:flex; align-items:center; justify-content:space-between; gap:20px; padding-top:27px; padding-bottom:27px; border-bottom:1px solid var(--line); }
+    .brand { display:flex; align-items:center; gap:11px; font-size:16px; font-weight:720; letter-spacing:-.3px; }
+    .brand-icon { width:34px; height:34px; display:grid; place-items:center; background:var(--ink); color:white; border-radius:11px; }
+    .brand-icon svg { width:22px; height:22px; }
+    .platform-tag { border:1px solid #d0ded5; border-radius:7px; padding:3px 7px; font-size:11px; font-weight:600; color:var(--muted); letter-spacing:.3px; }
+    .status-pill { display:inline-flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; white-space:nowrap; }
+    .status-dot { width:7px; height:7px; background:#9aa9a2; border-radius:50%; }
+    .status-pill[data-state="ready"] .status-dot { background:#249b6f; box-shadow:0 0 0 4px #249b6f14; }
+    .status-pill[data-state="error"] .status-dot { background:#bb6355; }
+    .hero { padding:43px 0 29px; display:flex; align-items:center; gap:30px; justify-content:space-between; }
+    .eyebrow { margin-bottom:13px; color:var(--brand); font-size:11px; font-weight:750; letter-spacing:1.7px; text-transform:uppercase; }
+    .hero p { max-width:620px; font-size:16px; color:var(--muted); margin-bottom:0; }
+    .watch-art { position:relative; width:107px; height:143px; flex-shrink:0; display:grid; place-items:center; }
+    .watch-art:before { content:""; position:absolute; top:0; width:48px; height:143px; border-radius:16px; background:#d8e4d9; }
+    .watch-face { width:99px; height:99px; border:7px solid #244840; border-radius:50%; background:#eaf0db; z-index:1; position:relative; box-shadow:0 8px 20px #254b3c15,inset 0 0 0 3px #b9ccb6; }
+    .watch-face:after { content:""; width:6px; height:6px; border-radius:50%; background:var(--ink); position:absolute; top:calc(50% - 3px); left:calc(50% - 3px); }
+    .hand { position:absolute; left:calc(50% - 2px); width:4px; border-radius:3px; background:var(--ink); transform-origin:center bottom; bottom:50%; }
+    .hand.hour { height:23px; transform:rotate(45deg); }
+    .hand.minute { height:32px; transform:rotate(-60deg); }
+    .notice { display:flex; gap:11px; background:#e8eee4; padding:15px 18px; border-radius:13px; font-size:13px; line-height:1.6; margin-bottom:24px; }
+    .notice strong { color:var(--ink); }
+    .notice-icon { font-size:16px; flex-shrink:0; line-height:1.5; }
+    .layout { display:grid; grid-template-columns:minmax(0,1.63fr) minmax(0,1fr); align-items:start; gap:22px; }
+    .stack { display:grid; gap:18px; }
+    .card { border:1px solid var(--line); background:var(--paper); border-radius:var(--radius); padding:24px; box-shadow:0 2px 2px #233f3202; }
+    .card-heading { display:flex; gap:12px; align-items:flex-start; margin-bottom:22px; }
+    .card-heading p { font-size:13px; color:var(--muted); margin:4px 0 0; }
+    .step { width:29px; height:29px; margin-top:1px; border-radius:9px; display:grid; place-items:center; flex-shrink:0; background:#eaf2eb; color:var(--brand); font-size:13px; font-weight:750; }
+    .row { display:flex; gap:10px; align-items:flex-end; }
+    .grow { flex:1; min-width:0; }
+    .port { width:93px; }
+    .field-note { margin:10px 0 0; font-size:12px; color:var(--muted); }
+    .divider { height:1px; background:var(--line); margin:21px 0; }
+    .section-label { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:10px; }
+    .section-label label { margin-bottom:0; }
+    .empty { padding:16px; background:#f6f8f5; border:1px dashed #dce6df; border-radius:11px; color:var(--muted); font-size:13px; }
+    .device-detail { color:var(--muted); font-size:12px; margin-top:7px; overflow-wrap:anywhere; }
+    .file-drop { position:relative; border:1px dashed #b8cec1; border-radius:13px; padding:24px 18px; text-align:center; background:#f8faf7; transition:background .15s,border-color .15s; }
+    .file-drop.dragging { background:#e5f1e8; border-color:var(--brand); }
+    .file-drop.disabled { opacity:.5; }
+    .file-drop svg { width:27px; height:27px; margin-bottom:9px; color:#5f8072; }
+    .file-drop p { font-size:12px; margin:9px 0 0; color:var(--muted); }
+    .file-button { min-height:39px; padding:8px 14px; font-size:13px; position:relative; overflow:hidden; }
+    #package-file { position:absolute; width:100%; height:100%; inset:0; padding:0; opacity:0; cursor:pointer; }
+    .filename { font-size:13px; font-weight:600; margin:11px 0 0; overflow-wrap:anywhere; }
+    .package-meta { border:1px solid var(--line); border-radius:12px; padding:15px; margin-top:15px; }
+    .package-name { font-size:16px; font-weight:680; letter-spacing:-.25px; margin-bottom:4px; overflow-wrap:anywhere; }
+    .badge { display:inline-flex; align-items:center; gap:5px; border-radius:5px; padding:2px 6px; background:#ecf3ec; color:#3d6c4e; font-size:10px; letter-spacing:.5px; text-transform:uppercase; font-weight:700; }
+    .meta-table { display:grid; grid-template-columns:80px minmax(0,1fr); gap:8px 12px; margin:14px 0 0; font-size:12px; }
+    .meta-table dt { color:var(--muted); }
+    .meta-table dd { margin:0; overflow-wrap:anywhere; }
+    .package-note { color:var(--warn); background:#faf4e7; border-radius:8px; padding:10px 11px; font-size:12px; margin-top:13px; margin-bottom:0; }
+    .install-summary { color:var(--muted); font-size:13px; min-height:42px; margin-bottom:19px; overflow-wrap:anywhere; }
+    #install-button { width:100%; }
+    .install-note { font-size:11px; line-height:1.65; color:var(--muted); text-align:center; margin:10px 0 0; }
+    .checklist { list-style:none; padding:0; margin:0; display:grid; gap:13px; font-size:13px; color:var(--muted); }
+    .checklist li { display:flex; gap:10px; }
+    .checklist .tick { color:var(--brand); font-weight:750; }
+    .checklist strong { color:var(--ink); font-weight:600; }
+    .error-message { color:var(--error); background:#fcf0ec; border:1px solid #f0d7cc; border-radius:10px; padding:12px 14px; font-size:13px; white-space:pre-wrap; overflow-wrap:anywhere; margin-bottom:18px; }
+    .activity { display:flex; align-items:center; gap:8px; color:var(--brand); font-size:13px; margin:0 0 15px; }
+    .spinner { width:14px; height:14px; border:2px solid #c5ded0; border-top-color:var(--brand); border-radius:50%; animation:spin .8s linear infinite; flex-shrink:0; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .auth { margin-bottom:22px; border-color:#bed4c6; }
+    .auth summary { font-size:14px; font-weight:650; cursor:pointer; }
+    .auth-content { margin-top:17px; }
+    .auth-content p { font-size:13px; color:var(--muted); }
+    .auth-row { display:flex; align-items:flex-end; gap:10px; }
+    .auth-message { margin-top:10px; font-size:12px; color:var(--muted); }
+    .log-card { margin-top:22px; padding:21px 24px; }
+    .log-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:13px; }
+    .log-heading h2 { font-size:15px; margin:0; }
+    pre { margin:0; padding:15px; background:#f5f7f4; border:1px solid #e9eee7; border-radius:10px; max-height:280px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace; color:#425e54; }
+    footer { padding:23px 0 33px; text-align:center; color:#7b8d83; font-size:11px; }
+    @media (max-width:780px) { .layout { grid-template-columns:1fr; } .side { display:grid; grid-template-columns:1fr 1fr; gap:18px; } .side .card { height:100%; } .hero { padding-top:32px; } .watch-art { transform:scale(.85); margin-right:-8px; } }
+    @media (max-width:540px) { .shell { padding:0 18px; } .topbar { padding-top:20px; padding-bottom:20px; } .status-pill { font-size:11px; } .brand { font-size:14px; gap:8px; } .platform-tag { display:none; } .brand-icon { width:30px; height:30px; } .hero { padding:30px 0 24px; } h1 { letter-spacing:-1px; font-size:31px; } .hero p { font-size:14px; } .watch-art { display:none; } .notice { padding:13px 14px; font-size:12px; } .card { padding:20px; border-radius:17px; } .side { grid-template-columns:1fr; gap:18px; } .row { flex-wrap:wrap; } .row .connect-button { width:100%; } .auth-row { flex-direction:column; align-items:stretch; } .port { width:90px; } .log-card { padding:18px; } .card-heading { margin-bottom:18px; } }
+    @media (prefers-reduced-motion:reduce) { .spinner { animation:none; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m8 5 1-3h6l1 3M8 19l1 3h6l1-3"/><circle cx="12" cy="12" r="7"/><path d="M12 8v4l3 2"/></svg></span>Tizen Installer <span class="platform-tag">FOR MAC</span></div>
+      <span id="service-status" class="status-pill" data-state="idle" role="status"><span class="status-dot"></span><span id="service-label">Waiting for access</span></span>
+    </header>
+    <main>
+      <section class="hero">
+        <div><div class="eyebrow">Your watch. Your watchface.</div><h1>A new face for your<br>Galaxy watch.</h1><p>Install a local Tizen watchface or companion app package directly from your Mac.</p></div>
+        <div class="watch-art" aria-hidden="true"><div class="watch-face"><span class="hand hour"></span><span class="hand minute"></span></div></div>
+      </section>
+      <div class="notice"><span class="notice-icon" aria-hidden="true">ⓘ</span><div><strong>The Mac does the installing.</strong> Keep it running, with the watch on the same Wi-Fi. Open this installer on the Mac using the local address printed by the server.</div></div>
+
+      <details id="auth-card" class="card auth" open>
+        <summary>Access to your Mac</summary>
+        <form id="auth-form" class="auth-content">
+          <p>Paste the access token printed by the Mac server. It stays in this browser tab’s session storage.</p>
+          <div class="auth-row"><div class="grow"><label for="access-token">Access token</label><input id="access-token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Token from the Mac terminal" required></div><button id="auth-button" type="submit">Unlock installer</button></div>
+          <div id="auth-message" class="auth-message" role="status"></div>
+        </form>
+      </details>
+      <div id="error-message" class="error-message" role="alert" hidden></div>
+      <div id="activity" class="activity" role="status" hidden><span class="spinner" aria-hidden="true"></span><span id="activity-label"></span></div>
+
+      <div class="layout">
+        <div class="stack">
+          <section class="card">
+            <div class="card-heading"><span class="step">1</span><div><h2>Connect your watch</h2><p>Enable debugging, then enter its Wi-Fi IP address.</p></div></div>
+            <form id="connect-form">
+              <div class="row"><div class="grow"><label for="watch-host">Watch IP address</label><input id="watch-host" type="text" inputmode="decimal" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="192.168.1.42" required disabled></div><div class="port"><label for="watch-port">Port</label><input id="watch-port" type="number" min="1" max="65535" value="26101" required disabled></div><button id="connect-button" class="connect-button" type="submit" disabled>Connect</button></div>
+              <p class="field-note">Accept the debugging permission prompt on the watch when it appears.</p>
+            </form>
+            <div class="divider"></div>
+            <div class="section-label"><label for="watch-target">Install destination</label><button id="refresh-button" class="secondary small" type="button" disabled>Refresh</button></div>
+            <div id="devices-empty" class="empty">Connected watches will appear here.</div>
+            <select id="watch-target" aria-label="Install destination" hidden disabled></select>
+            <div id="device-detail" class="device-detail" hidden></div>
+          </section>
+
+          <section class="card">
+            <div class="card-heading"><span class="step">2</span><div><h2>Choose a watchface package</h2><p>A local <span class="mono">.tpk</span> or <span class="mono">.wgt</span> file is required.</p></div></div>
+            <div id="file-drop" class="file-drop disabled">
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-7m-3 3 3-3 3 3"/></svg><br>
+              <label class="file-button" for="package-file">Choose package<input id="package-file" type="file" accept=".tpk,.wgt" disabled aria-label="Choose Tizen package"></label>
+              <p>or drop a file here on your Mac</p><div id="selected-filename" class="filename" hidden></div>
+            </div>
+            <div id="package-meta" class="package-meta" hidden>
+              <div id="package-name" class="package-name"></div><span id="package-kind" class="badge"></span>
+              <dl class="meta-table"><dt>Package ID</dt><dd id="package-id" class="mono"></dd><dt>Version</dt><dd id="package-version"></dd><dt>Size</dt><dd id="package-size"></dd><dt>Signature</dt><dd id="package-signature"></dd></dl>
+              <p id="package-note" class="package-note" hidden></p>
+              <details class="small-text" style="margin-top:13px"><summary>SHA-256 checksum</summary><p id="package-sha" class="mono" style="overflow-wrap:anywhere;margin:9px 0 0;font-size:11px"></p></details>
+            </div>
+          </section>
+        </div>
+
+        <aside class="stack side">
+          <section class="card">
+            <div class="card-heading"><span class="step">3</span><div><h2>Ready to install</h2><p>Review the destination and package.</p></div></div>
+            <p id="install-summary" class="install-summary">Connect a watch and choose a package to continue.</p>
+            <button id="install-button" type="button" disabled>Install on watch</button>
+            <p class="install-note">Installation can take a minute. Keep the watch connected until the result appears.</p>
+          </section>
+          <section class="card">
+            <h3>Before you begin</h3>
+            <ul class="checklist"><li><span class="tick" aria-hidden="true">✓</span><span>For <strong>Tizen watches</strong>, including Galaxy Watch (2018) and Galaxy Watch Active2.</span></li><li><span class="tick" aria-hidden="true">✓</span><span>Turn on <strong>debugging</strong> on the watch. Reboot it if the connection is refused.</span></li><li><span class="tick" aria-hidden="true">✓</span><span>Use a package you trust, built for your watch. Its <strong>signature must be accepted</strong> by the watch.</span></li><li><span class="tick" aria-hidden="true">✓</span><span>After installation, select the face <strong>on the watch</strong>.</span></li></ul>
+          </section>
+        </aside>
+      </div>
+
+      <section class="card log-card" aria-labelledby="log-title"><div class="log-heading"><h2 id="log-title">Activity log</h2><button id="clear-log-button" class="secondary small" type="button">Clear</button></div><pre id="output-log" tabindex="0" aria-label="Installer output">Waiting for access to the Mac server.</pre></section>
+      <footer>This utility sends packages through the Mac’s SDB tool. Successful installation depends on the package and watch firmware.</footer>
+    </main>
+  </div>
+  <script>
+  (() => {
+    'use strict';
+    const $ = id => document.getElementById(id);
+    const storageKey = 'tizen-installer-token';
+    let token = '', authorized = false, pending = false, serverBusy = false;
+    let currentPackage = null, uploadId = null, devices = [], logStarted = false, installComplete = false;
+    let statusRequest = null;
+
+    // Tokens never enter a query string or persistent browser storage.
+    const fragment = new URLSearchParams(location.hash.slice(1));
+    const fragmentToken = fragment.get('token');
+    if (fragmentToken) {
+      token = fragmentToken;
+      try { sessionStorage.setItem(storageKey, token); } catch (_) {}
+    } else {
+      try { token = sessionStorage.getItem(storageKey) || ''; } catch (_) {}
+    }
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    $('access-token').value = token;
+
+    function log(message) {
+      const line = '[' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + '] ' + String(message);
+      $('output-log').textContent = (logStarted ? $('output-log').textContent + '\n\n' : '') + line;
+      logStarted = true;
+      $('output-log').scrollTop = $('output-log').scrollHeight;
+    }
+
+    function setError(message) {
+      $('error-message').textContent = message || '';
+      $('error-message').hidden = !message;
+    }
+
+    function serviceState(state, label) {
+      $('service-status').dataset.state = state;
+      $('service-label').textContent = label;
+    }
+
+    function setActivity(message) {
+      $('activity-label').textContent = message || '';
+      $('activity').hidden = !message;
+    }
+
+    function targetDevice() { return devices.find(device => device.serial === $('watch-target').value); }
+
+    function updateControls() {
+      const locked = !authorized || pending || serverBusy;
+      ['watch-host','watch-port','connect-button','refresh-button','package-file','watch-target'].forEach(id => { $(id).disabled = locked; });
+      $('file-drop').classList.toggle('disabled', locked);
+      $('auth-button').disabled = pending;
+      const target = targetDevice();
+      const readyTarget = target && target.state === 'device';
+      $('install-button').disabled = locked || !uploadId || !readyTarget;
+      if (installComplete) {
+        $('install-summary').textContent = 'Installation completed. Open the installed app or select the new face on your watch.';
+      } else if (currentPackage && readyTarget) {
+        $('install-summary').textContent = 'Install “' + (currentPackage.name || currentPackage.id || 'selected package') + '” on ' + (target.model || target.serial) + ' (' + target.serial + ').';
+      } else if (currentPackage) {
+        $('install-summary').textContent = 'Package inspected. Connect and select an authorized watch to install it.';
+      } else if (readyTarget) {
+        $('install-summary').textContent = (target.model || 'Watch') + ' is connected. Choose a package to continue.';
+      } else {
+        $('install-summary').textContent = 'Connect a watch and choose a package to continue.';
+      }
+      if (serverBusy && !pending) setActivity('The Mac is working. Wait for it to finish.');
+      else if (!pending) setActivity('');
+    }
+
+    async function api(path, options = {}) {
+      const headers = new Headers(options.headers || {});
+      headers.set('X-Tizen-Token', token);
+      let response;
+      try { response = await fetch(path, { ...options, headers, cache: 'no-store', credentials: 'omit' }); }
+      catch (_) { throw new Error('Cannot reach the Mac server. Keep the Mac awake and the server running, and check that both devices are on the same network.'); }
+      const raw = await response.text();
+      let data;
+      try { data = raw ? JSON.parse(raw) : {}; }
+      catch (_) { throw new Error('The Mac server returned an unreadable response (' + response.status + ').'); }
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          authorized = false;
+          $('auth-card').open = true;
+          $('auth-message').textContent = 'The token was not accepted. Use the token printed by the running Mac server.';
+          serviceState('error', 'Access required');
+          updateControls();
+        }
+        const detail = data.error || data.message || ('Request failed (' + response.status + ').');
+        throw new Error(typeof detail === 'string' ? detail : JSON.stringify(detail));
+      }
+      return data;
+    }
+
+    function renderDevices(nextDevices) {
+      const previous = $('watch-target').value;
+      devices = Array.isArray(nextDevices) ? nextDevices : [];
+      $('watch-target').replaceChildren();
+      for (const device of devices) {
+        const option = document.createElement('option');
+        option.value = device.serial;
+        option.textContent = (device.model ? device.model + ' · ' : '') + device.serial + (device.state === 'device' ? '' : ' · ' + device.state);
+        option.disabled = device.state !== 'device';
+        $('watch-target').append(option);
+      }
+      const ready = devices.filter(device => device.state === 'device');
+      if (ready.some(device => device.serial === previous)) $('watch-target').value = previous;
+      else if (ready.length) $('watch-target').value = ready[0].serial;
+      else $('watch-target').selectedIndex = -1;
+      $('devices-empty').hidden = devices.length > 0;
+      $('watch-target').hidden = devices.length === 0;
+      updateDeviceDetail();
+    }
+
+    function updateDeviceDetail() {
+      const target = targetDevice();
+      const unready = devices.filter(device => device.state !== 'device');
+      const details = [];
+      if (target) details.push('Ready · ' + target.serial);
+      if (unready.length) details.push(unready.map(device => device.serial + ': ' + device.state).join('; ') + '. Check the permission prompt on the watch.');
+      $('device-detail').textContent = details.join(' ');
+      $('device-detail').hidden = details.length === 0;
+      updateControls();
+    }
+
+    async function refreshStatus({ quiet = false } = {}) {
+      if (!token) return;
+      if (statusRequest) return statusRequest;
+      statusRequest = (async () => {
+        try {
+          const status = await api('/api/status');
+          authorized = true;
+          serverBusy = Boolean(status.busy);
+          $('auth-card').open = false;
+          $('auth-message').textContent = 'Access granted for this browser tab.';
+          if (status.sdb_available) {
+            serviceState('ready', 'Mac server ready');
+          } else {
+            serviceState('error', 'SDB needs setup');
+            setError('The Mac server is running, but SDB was not found. Install or configure the SDB tool on the Mac before connecting your watch.');
+          }
+          renderDevices(status.devices);
+          if (!quiet) log(status.sdb_available ? 'Mac server ready. SDB: ' + (status.sdb_path || 'available') + (status.platform ? ' · ' + status.platform : '') : 'Mac server reached. SDB was not found.');
+          return status;
+        } catch (error) {
+          if (!authorized) $('auth-card').open = true;
+          serviceState('error', 'Server unavailable');
+          if (!quiet) { setError(error.message); log(error.message); }
+          throw error;
+        } finally { statusRequest = null; updateControls(); }
+      })();
+      return statusRequest;
+    }
+
+    async function run(message, action) {
+      if (pending || serverBusy) return;
+      pending = true;
+      setError('');
+      setActivity(message);
+      updateControls();
+      try { await action(); }
+      catch (error) { setError(error.message); log(error.message); }
+      finally {
+        pending = false;
+        setActivity('');
+        updateControls();
+      }
+    }
+
+    function formatSize(size) {
+      const value = Number(size);
+      if (!Number.isFinite(value)) return 'Unknown';
+      if (value < 1024) return value + ' bytes';
+      if (value < 1024 * 1024) return (value / 1024).toFixed(1) + ' KB';
+      return (value / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function renderPackage(pkg) {
+      $('package-meta').hidden = false;
+      $('package-name').textContent = pkg.name || pkg.id || 'Tizen package';
+      $('package-kind').textContent = (pkg.is_watchface === true ? 'Watchface' : pkg.is_watchface === false ? 'App package' : 'Tizen package') + (pkg.type ? ' · ' + pkg.type : '');
+      $('package-id').textContent = pkg.id || 'Not found';
+      $('package-version').textContent = pkg.version || 'Not found';
+      $('package-size').textContent = formatSize(pkg.size);
+      $('package-signature').textContent = pkg.signed === true ? 'Signature file present' : pkg.signed === false ? 'No signature found' : 'Unknown';
+      $('package-sha').textContent = pkg.sha256 || 'Not available';
+      const notes = [];
+      if (pkg.is_watchface === false) notes.push('This package was not identified as a watchface. Check that it is the file you intend to install.');
+      if (pkg.signature_note) notes.push(pkg.signature_note);
+      else notes.push('A signature file alone does not prove that the watch will accept this package.');
+      $('package-note').textContent = notes.join(' ');
+      $('package-note').hidden = notes.length === 0;
+    }
+
+    async function inspectFile(file) {
+      if (!file || pending || serverBusy || !authorized) return;
+      uploadId = null;
+      currentPackage = null;
+      installComplete = false;
+      $('package-meta').hidden = true;
+      $('selected-filename').hidden = false;
+      $('selected-filename').textContent = file.name;
+      updateControls();
+      if (!/\.(tpk|wgt)$/i.test(file.name)) {
+        setError('Choose a .tpk or .wgt Tizen package. A .gwd, .watch, .apk, or ZIP download cannot be installed here directly.');
+        return;
+      }
+      await run('Uploading to your Mac and inspecting the package…', async () => {
+        log('Inspecting ' + file.name + ' (' + formatSize(file.size) + ').');
+        const result = await api('/api/package?filename=' + encodeURIComponent(file.name), { method: 'POST', headers: { 'Content-Type': 'application/octet-stream' }, body: file });
+        if (!result.package || !result.upload_id) throw new Error('The Mac server did not return a valid package inspection.');
+        currentPackage = result.package;
+        uploadId = result.upload_id;
+        renderPackage(currentPackage);
+        log('Package inspected: ' + (currentPackage.id || currentPackage.name || file.name) + '. Review the destination, then press Install on watch.');
+      });
+    }
+
+    $('auth-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      const nextToken = $('access-token').value.trim();
+      if (!nextToken || pending) return;
+      token = nextToken;
+      authorized = false;
+      currentPackage = null;
+      uploadId = null;
+      installComplete = false;
+      $('package-meta').hidden = true;
+      $('selected-filename').hidden = true;
+      $('package-file').value = '';
+      try { sessionStorage.setItem(storageKey, token); } catch (_) {}
+      await run('Checking access to your Mac…', () => refreshStatus());
+    });
+
+    $('connect-form').addEventListener('submit', async event => {
+      event.preventDefault();
+      const host = $('watch-host').value.trim();
+      const port = Number($('watch-port').value);
+      if (!host || !Number.isInteger(port) || port < 1 || port > 65535) { setError('Enter the watch IP address and a port between 1 and 65535.'); return; }
+      await run('Connecting to the watch. Check its debugging permission prompt…', async () => {
+        log('Connecting to ' + host + ':' + port + '.');
+        const result = await api('/api/connect', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({host,port}) });
+        if (result.output) log(result.output);
+        await refreshStatus({quiet:true});
+        if (devices.some(device => device.state === 'device')) log('Watch connected and ready.');
+        else log('Connection command completed. Accept the debugging permission on the watch, then refresh the destination list.');
+      });
+    });
+
+    $('refresh-button').addEventListener('click', () => run('Refreshing connected watches…', () => refreshStatus()));
+    $('watch-target').addEventListener('change', updateDeviceDetail);
+    $('package-file').addEventListener('change', event => inspectFile(event.target.files[0]));
+    const drop = $('file-drop');
+    for (const type of ['dragenter','dragover']) drop.addEventListener(type, event => {
+      event.preventDefault();
+      if (authorized && !pending && !serverBusy) drop.classList.add('dragging');
+    });
+    for (const type of ['dragleave','drop']) drop.addEventListener(type, event => { event.preventDefault(); drop.classList.remove('dragging'); });
+    drop.addEventListener('drop', event => {
+      if (event.dataTransfer.files.length > 1) { setError('Choose one package at a time.'); return; }
+      inspectFile(event.dataTransfer.files[0]);
+    });
+
+    $('install-button').addEventListener('click', async () => {
+      const target = targetDevice();
+      if (!target || target.state !== 'device' || !uploadId) return;
+      const id = uploadId;
+      const name = currentPackage.name || currentPackage.id || 'package';
+      await run('Installing ' + name + '. Keep the Mac and watch connected…', async () => {
+        log('Installing ' + name + ' on ' + target.serial + '.');
+        const result = await api('/api/install', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({upload_id:id,target:target.serial})});
+        if (result.output) log(result.output);
+        if (!result.success) throw new Error('The watch did not confirm installation. Check the activity log for the SDB error.');
+        log('Installation completed. Open the installed app or select the new face on your watch.');
+        installComplete = true;
+        // A deliberate new click is required for any subsequent installation.
+        uploadId = null;
+      });
+    });
+
+    $('clear-log-button').addEventListener('click', () => { $('output-log').textContent = 'Activity log cleared.'; logStarted = false; });
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && authorized && !pending) refreshStatus({quiet:true}).catch(() => {}); });
+    updateControls();
+    if (token) run('Checking access to your Mac…', () => refreshStatus());
+  })();
+  </script>
+</body>
+</html>
